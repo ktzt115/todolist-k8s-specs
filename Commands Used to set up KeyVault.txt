@@ -1,0 +1,57 @@
+az group create -n rg-project3 --tags courselabs=azure -l southeastasia
+
+az network vnet create -g rg-project3 -n appnet --address-prefix "10.30.0.0/16" -l southeastasia
+
+az network vnet subnet create -g rg-project3 --vnet-name appnet -n aks --address-prefix "10.30.1.0/24"
+
+az network vnet subnet show -g rg-project3 --vnet-name appnet -n aks --query id -o tsv
+
+az aks create -g rg-project3 -n aks06 --node-count 2 --enable-addons azure-keyvault-secrets-provider --enable-managed-identity --network-plugin azure --vnet-subnet-id '/subscriptions/37ad3d4a-d6dc-4f90-ad6b-a7064485a642/resourceGroups/rg-project3/providers/Microsoft.Network/virtualNetworks/appnet/subnets/aks' -l southeastasia
+
+
+az storage account create -g rg-project3 --sku Standard_ZRS -l southeastasia -n saproject3ktzt
+
+
+az storage container create -n AzureTableStorage -g rg-project3 --account-name saproject3ktzt
+
+
+az storage account show-connection-string -o tsv -g rg-project3 --name saproject3ktzt 
+
+
+DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=saproject3ktzt;AccountKey=Q+MdL200aTRHZWwbMWIsGDreZezm2oaQlkC+JHuq1XzAFFBmvhpZYpM6qWA9ISKeQZaFYRCuswX1+ASt7j3GYg==;BlobEndpoint=https://saproject3ktzt.blob.core.windows.net/;FileEndpoint=https://saproject3ktzt.file.core.windows.net/;QueueEndpoint=https://saproject3ktzt.queue.core.windows.net/;TableEndpoint=https://saproject3ktzt.table.core.windows.net/
+
+
+az keyvault create -g rg-project3 -l southeastasia -n kvproject3ktzt 
+
+az keyvault secret set --name config  --file config.json --vault-name kvproject3ktzt
+
+az keyvault secret show --name config  --vault-name kvproject3ktzt
+
+
+az network vnet subnet update -g rg-project3 --vnet-name appnet --name aks --service-endpoints Microsoft.KeyVault Microsoft.Storage
+
+az keyvault network-rule add --vnet-name appnet --subnet aks -g rg-project3 --name kvproject3ktzt
+
+az keyvault update --default-action 'Deny' -g rg-project3 -n kvproject3ktzt
+
+az keyvault network-rule list -g rg-project3 --name kvproject3ktzt
+
+az aks show -g rg-project3 -n aks06 --query addonProfiles.azureKeyvaultSecretsProvider.identity.clientId -o tsv
+4b78a020-6be3-4300-a636-77f8a11506ff
+
+
+az keyvault set-policy --secret-permissions get --spn '4b78a020-6be3-4300-a636-77f8a11506ff' -n kvproject3ktzt
+
+
+tenant id : cf36141c-ddd7-45a7-b073-111f66d0b30c
+
+az aks get-credentials -g rg-project3 -n aks06 --overwrite-existing
+
+kubectl apply -f labs/aks-apps/specs/asset-manager
+
+
+kubectl delete pod,svc,deploy,cm -l io.kompose.service
+
+kubectl delete pods,services,deployment,rs -l io.kompose.service
+
+kubectl get all -l io.kompose.service

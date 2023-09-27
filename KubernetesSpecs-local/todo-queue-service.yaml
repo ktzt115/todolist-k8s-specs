@@ -6,17 +6,15 @@ metadata:
     kompose.version: 1.30.0 (9d8dcb518)
   creationTimestamp: null
   labels:
-    io.kompose.service: todo-list-web
-  name: todo-list-web
+    io.kompose.service: todo-queue
+  name: todo-queue
   namespace: default
 spec:
   ports:
-    - name: "8099"
-      protocol: "TCP"
-      port: 8099
-      targetPort: 80
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
   selector:
-    io.kompose.service: todo-list-web
-  type: LoadBalancer
-# status:
-#   loadBalancer: {}
+    io.kompose.service: todo-queue
+status:
+  loadBalancer: {}

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\Program Files\Kompose\kompose.exe convert
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: todo-list-web
+  name: todo-list-web
+  namespace: default
+spec:
+  ports:
+    - name: "8099"
+      protocol: "TCP"
+      port: 8099
+      targetPort: 80
+  type: LoadBalancer
+  selector:
+    io.kompose.service: todo-list-web
+status:
+  loadBalancer: {}
